@@ -1,4 +1,3 @@
-#Alan Cowap 2016
 #City & Guilds Module 7540 Unit 389 SQL Programming Assignment_A_V2
 
 #1
