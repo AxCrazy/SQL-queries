@@ -1,0 +1,224 @@
+#1
+
+/*
+List the last name, first name and employee number of all employees that have a last name starting with S.
+*/
+
+SELECT Last_Name, First_Name, Employee_No
+FROM employees
+WHERE Last_Name LIKE 'S%'
+ORDER BY Last_Name ASC;
+
+#2 
+
+/*
+List the last name, first name and employee number of all stock clerks who were hired on or before 26 Aug 1998 sorted in ascending order of last name.
+*/
+
+SELECT Last_Name, First_Name, Employee_No
+FROM employees
+WHERE Job_ID = "ST_CLERK" AND Hire_Date <= '1998-08-26'
+ORDER BY Last_Name ASC;
+
+#3
+
+/*
+List the department number, last name and salary of all employees who were hired between 15/11/98 and 07/12/99 sorted in ascending order of last name within department number.
+*/
+
+SELECT Department_No, Last_Name, Annual_Salary
+FROM employees
+WHERE Hire_Date BETWEEN '1998-11-15' AND '1999-07-15'
+ORDER BY Department_No ASC, Last_Name ASC;
+
+#4
+
+/*
+List the last name, job and commission percentage of employees where the commission percentage is less than or equal 15% sorted in descending order 
+of commission percentage.
+*/
+
+SELECT Last_Name, Job_ID, Commission_Percent
+FROM employees
+WHERE Commission_Percent <= 0.15
+ORDER BY Commission_Percent DESC;
+
+#5
+
+/*
+Which jobs are found in the Administration and Human Resources departments?
+*/
+
+SELECT Job_Title FROM jobs
+WHERE Job_ID LIKE 'AC_%' OR Job_ID LIKE 'HR_%';
+
+#6
+
+/*
+List the last name of all employees in the Marketing and Sales departments together with their monthly salaries (rounded to 2 decimal places), sorted in 
+ascending order of last name.
+*/
+
+SELECT Last_Name, ROUND(Annual_Salary/12,2) FROM employees
+WHERE Department_No = '10' OR Department_No = '60'
+ORDER BY Last_Name ASC;
+
+#7
+
+/*
+Show the average salaries figure for one month displayed with no decimal places.
+*/
+
+SELECT ROUND(SUM(Annual_Salary)/COUNT(Employee_No)/12,0) AS 'Average_Salary' FROM employees;
+
+#8
+
+/*
+Show the total number of employees in the Finance department.
+*/
+
+SELECT * FROM employees
+WHERE Job_ID LIKE 'FN_%';
+
+#9
+
+/*
+List the last name, first name, hire date and salary of all employees in the UK sorted in ascending order of last name.
+*/
+
+SELECT employees.Last_Name, employees.First_Name, employees.Hire_Date, employees.Annual_Salary
+    FROM Departments
+    INNER JOIN Locations
+		ON Departments.location_id = Locations.location_id
+        INNER JOIN Employees 
+			ON Departments.department_no = Employees.department_no
+	WHERE Departments.location_id LIKE 1200 OR departments.Location_ID LIKE 2000
+    ORDER BY department_name ASC;
+
+#10
+
+/*
+List the department number, and the highest salary of the department with the highest average salary.
+*/
+
+
+
+#11
+
+/*
+List the department number and name for all departments where no marketing representatives work.
+*/
+
+SELECT DISTINCT department_no, department_name
+	FROM Departments
+    WHERE department_no NOT IN (
+		SELECT DISTINCT department_no
+        FROM Employees
+        WHERE job_id = 'MK_REP'
+    );
+
+#12
+
+/*
+Add the following new job SA_CLERK, Sales Clerk, 9000, 12000
+*/
+
+INSERT INTO Jobs(Job_ID, Job_Title, Min_Salary, Max_Salary)
+	VALUES('SA_CLERK', 'Sales Clerk', 8000, 12000);
+SELECT * from Jobs;
+
+#13
+
+/*
+Update all the maximum salaries for jobs with an increase of 2000.
+*/
+
+UPDATE Jobs SET Max_Salary = Max_Salary + 2000;
+
+SELECT Max_Salary FROM Jobs;
+
+#14
+
+/*
+List all the data for jobs sorted in ascending order of maximum salary.
+*/
+
+SELECT * FROM Jobs
+ORDER BY Max_Salary ASC;
+
+
+#15
+
+/*
+Produce a list of employees showing percentage raises, employee numbers and old and new salaries. Employees in departments 
+80 and 90 are given a 6% rise, employees in departments 20 and 190 are given a 12% rise and employees in other departments are not given a rise.
+*/
+
+SELECT ROUND(((Annual_Salary*1.06/Annual_Salary) -1)*100, 0) AS Percent_Raise, Employee_No, Annual_Salary AS Old_Salary, Annual_Salary*1.06 AS New_Salary
+From employees
+WHERE employees.Department_No IN (80,90)
+UNION
+SELECT ROUND(((Annual_Salary*1.12)/Annual_Salary -1)*100, 0) AS Percent_Raise, Employee_No, Annual_Salary AS Old_Salary, Annual_Salary*1.12 AS New_Salary
+From employees
+WHERE employees.Department_No IN (20, 190)
+UNION
+SELECT ROUND(((Annual_Salary*1)/Annual_Salary -1)*100, 0) AS Percent_Raise, Employee_No, Annual_Salary AS Old_Salary, Annual_Salary*1 AS New_Salary
+From employees
+WHERE employees.Department_No NOT IN (20, 80, 90, 190);
+
+#16
+
+/*
+
+*/
+
+#17
+
+/*
+Create a new view for manager’s details only using all the fields from the employee table. 
+Show all the fields and all the managers using the view for managers.
+*/
+
+
+CREATE VIEW Manager_Details AS
+SELECT Employee_No, First_Name, Last_Name, Phone_Number, Hire_Date, Job_ID, Annual_Salary, Department_No
+FROM employees
+WHERE Job_ID LIKE '%_MGR';
+
+SELECT * FROM manager_details;
+
+#18
+
+/*
+a) Drop the manager’s view.
+
+b) Recreate the manager’s view so that the salary field is no longer included. 
+
+c) Use the ALTER statement to compile the manager’s view.
+
+*/
+
+DROP VIEW IF EXISTS manager_details;
+
+ALTER VIEW manager_details
+AS
+SELECT Employee_No, First_Name, Last_Name, Phone_Number, Hire_Date, Job_ID, Department_No
+FROM employees
+WHERE Job_ID LIKE '%_MGR';
+
+#19
+
+/*
+Show all the fields and all the managers using the view for managers.
+*/
+
+SELECT * FROM manager_details;
+
+#20
+
+/*
+Print a copy of the data dictionary entry for the table employees
+*/
+
+SHOW COLUMNS FROM cgdatabase.employees;
+
