@@ -1,0 +1,228 @@
+# Bryan Mulhall
+
+#1
+/*
+List the last name, first name and employee number of all employees that have
+ a last name starting with M.
+*/
+SELECT last_name, first_name, employee_no
+	FROM Employees
+	WHERE last_name like 'M%';
+
+#2
+/*
+List the department number, last name, first name and
+ phone number of all sales representatives who were
+ hired on or after 24 Mar 1998 sorted in ascending
+ order of last name.
+*/
+SELECT department_no, last_name, first_name, phone_number
+	FROM Employees
+    WHERE job_id = 'SA_REP' AND hire_date >= '1998-03-24'
+    ORDER BY last_name ASC;
+#3
+/*
+List all the data for all jobs where the minimum salary
+ is less than or equal to 4500 sorted in descending
+ order of the minimum salary.
+*/
+SELECT * FROM Jobs
+	WHERE min_salary <= 4500
+    ORDER BY min_salary DESC;
+    
+#4
+/*
+Which jobs are found in the Marketing and Accounting
+ departments?
+*/
+#SELECT * FROM Departments;
+SELECT DISTINCT department_no, Employees.job_id, Jobs.job_title
+	FROM Employees
+    INNER JOIN Jobs ON Employees.job_id = Jobs.job_id
+    WHERE Employees.department_no IN (10,30);
+#OR
+SELECT job_title FROM Jobs
+	WHERE job_id IN (
+		SELECT job_id FROM Employees
+			WHERE department_no IN (
+				SELECT department_no FROM Departments
+					WHERE department_name IN (
+						'Marketing', 'Accounting')
+			)
+    );
+
+#5
+/*
+List the department name, location, last name and
+ salary of employees who work in location 1700 sorted
+ in ascending order of department name
+*/
+SELECT Departments.department_name, Locations.state_province_county,
+	Locations.city, Locations.country_id, last_name,
+    Employees.annual_salary
+    FROM Departments
+    INNER JOIN Locations
+		ON Departments.location_id = Locations.location_id
+        INNER JOIN Employees 
+			ON Departments.department_no = Employees.department_no
+	WHERE Departments.location_id = 1700
+    ORDER BY department_name ASC;
+
+#6
+/*
+List the last name and first name for all employees
+ who were hired in the months of June or August
+ (for all years) sorted in ascending order of last name.
+*/
+SELECT last_name, first_name #, hire_date
+	FROM Employees
+#	WHERE hire_date like '%-06-%' OR hire_date like '%-08-%'
+	WHERE Month(hire_date) = 6 OR Month(hire_date) = 8
+    ORDER BY last_name ASC;
+
+#7
+/*
+Show the average salary for employees for one year
+ (rounded to 2 decimal places).
+*/
+#SELECT ROUND(SUM(annual_salary)/COUNT(*),2)
+SELECT ROUND(AVG(annual_salary),2)
+	AS 'Average_Annual_Salary'
+    FROM Employees;
+
+#8
+/*
+Show the total monthly salaries figure (0 decimal
+ places) for all employees in departments 80 and 60.
+*/
+SELECT ROUND(SUM(annual_salary/12),0)
+	FROM Employees
+    WHERE department_no IN (80,60);
+
+#9
+/*
+List the department number, department name and the
+ number of employees for each department that has less
+ than 4 employees grouping by department number and
+ department name.
+*/
+SELECT Employees.department_no, Departments.department_name,
+	COUNT(*) AS 'NumberOfEmployees'
+    FROM Employees
+    INNER JOIN Departments
+    ON Departments.department_no = Employees.department_no
+    GROUP BY department_no, department_name
+    HAVING COUNT(*) < 4;
+
+#10
+/*
+List the department number, department name and the
+ number of employees for the department that has the
+ lowest number of employees using appropriate grouping.
+*/
+SELECT Departments.department_no, Departments.department_name,
+	COUNT(Employees.employee_no)
+    FROM Employees
+    INNER JOIN Departments
+    ON Departments.department_no = Employees.Department_no
+    GROUP BY Employees.department_no
+    #HAVING Departments.department_no = 70;
+    ORDER BY COUNT(*) ASC LIMIT 1;
+
+#11
+/*
+List the department number and name for all departments
+ where no sales representatives work.
+*/
+SELECT DISTINCT department_no, department_name
+	FROM Departments
+    WHERE department_no NOT IN (
+		SELECT DISTINCT department_no
+        FROM Employees
+        WHERE job_id = 'SA_REP'
+    );
+
+#12
+/*
+Add the following new job
+IT_ASST, IT Assistant, 5000, 8000
+*/
+INSERT INTO Jobs (job_id, job_title, min_salary, max_salary)
+	VALUES('IT_ASST', 'IT Assistant', '5000', '8000');
+SELECT * FROM Jobs WHERE job_id = 'IT_ASST';
+
+#13
+/*
+Update all the minimum salaries for jobs with an increase of 500.
+*/
+#SELECT * FROM Jobs;
+#SET sql_safe_updates = 0;
+UPDATE Jobs SET min_salary = min_salary + 500;
+#SET sql_safe_updates = 1;
+#SELECT * FROM Jobs;
+
+#14
+/*
+List all the data for jobs sorted in ascending order of job id.
+*/
+SELECT * FROM Jobs ORDER BY job_id ASC;
+
+#15
+/*
+The database administrator has found the following
+ entity-relationship diagram. He thinks that the
+ diagram is incorrect. Check the diagram and draw
+ a corrected diagram.
+*/
+# See hand drawn ERD.
+# See attached file JamesGoslingERD.bmp
+
+#16
+/*
+Print a copy of the data dictionary entry for the
+table departments.
+*/
+SHOW COLUMNS FROM cgdatabase.Departments;
+
+#17
+/*
+Drop the table for job history.
+*/
+DROP TABLE IF EXISTS Job_History;
+
+#18
+/*
+Create a new table called SAL_HISTORY to include
+ the fields EMPID, FIRSTNAME, LASTNAME, HIREDATE
+ and SAL with the same data types as the employees
+ table. The EMPID must not be NULL.
+*/
+DROP TABLE IF EXISTS SAL_HISTORY;
+CREATE TABLE SAL_HISTORY(
+	EMPID integer NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    FIRSTNAME varchar(40),
+    LASTNAME varchar(40),
+    HIREDATE date,
+    SAL decimal(8,2)
+);
+#SELECT * FROM SAL_HISTORY;
+
+#19
+/*
+Insert data from the employees table where the employee
+ number is less than or equal to 130 into the
+ SAL_HISTORY table.
+*/
+INSERT INTO SAL_HISTORY (FIRSTNAME, LASTNAME, HIREDATE, SAL)
+	SELECT Employees.first_name, Employees.last_name,
+		Employees.hire_date, Employees.annual_salary
+        FROM Employees
+        WHERE Employees.employee_no <= 130;
+             
+#20
+/*
+Display all the records and all the fields in the SAL_HISTORY table.
+*/
+SELECT * FROM SAL_HISTORY;
+Status API Training Shop Blog About Pricing
+© 2016 GitHub, Inc. Terms Privacy Security Conta
